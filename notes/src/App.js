@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import { Link, Route } from "react-router-dom";
+import axios from 'axios';
 
 
 import Notes from "./components/Notes";
@@ -15,66 +16,68 @@ class App extends Component {
     super(props);
     this.state = {
       notes: [
-        {
-          _id: 1,
-          title: "note2",
-          textBody: "Test Test Test Test"
-        },
-        {
-          _id: 2,
-          title: "note1",
-          textBody: "Test Test Test Test"
-        },
-        {
-          _id: 3,
-          title: "note3",
-          textBody: "Test Test Test Test"
-        },
-        {
-          _id: 4,
-          title: "note4",
-          textBody: "Test Test Test Test"
-        },
-        {
-          _id: 5,
-          title: "note5",
-          textBody: "Test Test Test Test"
-        },
-        {
-          _id: 6,
-          title: "note6",
-          textBody: "Test Test Test Test"
-        },
-        {
-          _id: 7,
-          title: "note7",
-          textBody: "Test Test Test Test"
-        }
-      ],
-      title: '',
-      textBody: '',
-      _id: 8,
+        // {
+        //   _id: 1,
+        //   title: "note2",
+        //   textBody: "Test Test Test Test"
+        // },
+        // {
+        //   _id: 2,
+        //   title: "note1",
+        //   textBody: "Test Test Test Test"
+        // },
+        // {
+        //   _id: 3,
+        //   title: "note3",
+        //   textBody: "Test Test Test Test"
+        // },
+        // {
+        //   _id: 4,
+        //   title: "note4",
+        //   textBody: "Test Test Test Test"
+        // },
+        // {
+        //   _id: 5,
+        //   title: "note5",
+        //   textBody: "Test Test Test Test"
+        // },
+        // {
+        //   _id: 6,
+        //   title: "note6",
+        //   textBody: "Test Test Test Test"
+        // },
+        // {
+        //   _id: 7,
+        //   title: "note7",
+        //   textBody: "Test Test Test Test"
+        // }
+      ]
+
     }
 
   }
-
-  addNote = (e, push) => {
-    e.preventDefault();
-
-    const notes = this.state.notes.slice();
-
-    notes.push({
-      title: this.state.title,
-      textBody: this.state.textBody,
-      _id: this.state._id
-    });
-
-    const _id = this.state._id + 1;
-    push(`/notes`)
-    this.setState({
-      notes, _id, title: '', textBody: ''
+  componentDidMount(){
+    this.setState({loading: true});
+    axios.get("https://killer-notes.herokuapp.com/note/get/all")
+    .then(res => {
+      this.setState({notes: res.data, loading:false})
     })
   }
+
+  addNote = note => {
+    this.setState({loading: true})
+    axios.post("https://killer-notes.herokuapp.com/note/create", note)
+    .then(res => {
+      axios.get(`https://killer-notes.herokuapp.com/note/get/all/${res.data.success}`)
+      .then(res => {
+        this.setState(prevState => ({
+          notes: [...prevState.notes, res.data],
+          loading:false,
+        }))
+      })
+    })
+  }
+  
 
   handleChange = (e) => {
     this.setState({
